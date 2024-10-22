@@ -32,7 +32,7 @@ var rootCmd = &cobra.Command{
 		mux.Handle(viper.GetString("web_metrics_path"), promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
 		mux.HandleFunc("/healthz", handlers.Healthz)
 
-		zap.L().Sugar().Infof("Starting exporter on: %v", viper.GetInt("port"))
+		zap.L().Sugar().Infof("Starting exporter on: %v", viper.GetInt("web_listen_address"))
 
 		if err := http.ListenAndServe(viper.GetString("web_listen_address"), mux); err != nil {
 			return err
