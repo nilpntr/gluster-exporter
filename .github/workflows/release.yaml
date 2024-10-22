@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment:
+      name: Semver
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+
+      - name: Run Semantic Release
+        id: release
+        uses: cycjimmy/semantic-release-action@v4
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          ci: false
+          extra_plugins: |
+            @semantic-release/commit-analyzer
+            @semantic-release/release-notes-generator
+            @semantic-release/git
+            @semantic-release/github
+            conventional-changelog-conventionalcommits
+
+      - name: Build go binary
+        if: steps.release.outputs.new_release_published == 'true'
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o gluster_exporter-${{steps.release.outputs.new_release_version }}.linux-amd64 github.com/nilpntr/gluster-exporter
+          GOOS=linux GOARCH=arm64 go build -o gluster_exporter-${{steps.release.outputs.new_release_version }}.linux-arm64 github.com/nilpntr/gluster-exporter
+
+      - name: Upload binaries
+        if: steps.release.outputs.new_release_published == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            gluster_exporter-${{steps.release.outputs.new_release_version }}.linux-amd64
+            gluster_exporter-${{steps.release.outputs.new_release_version }}.linux-arm64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
