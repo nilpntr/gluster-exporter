@@ -44,6 +44,7 @@ jobs:
         if: steps.release.outputs.new_release_published == 'true'
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{steps.release.outputs.new_release_version }}
           files: |
             gluster_exporter-${{steps.release.outputs.new_release_version }}.linux-amd64
             gluster_exporter-${{steps.release.outputs.new_release_version }}.linux-arm64
