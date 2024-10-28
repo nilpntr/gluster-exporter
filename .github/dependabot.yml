@@ -8,4 +8,11 @@ updates:
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    groups:
+      go-mod-group:
+        patterns: 
+          - "*"
+        update-types: 
+          - "minor"
+          - "patch"
